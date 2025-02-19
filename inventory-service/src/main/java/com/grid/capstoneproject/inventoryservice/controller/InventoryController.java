@@ -26,8 +26,7 @@ public class InventoryController {
             while ((line = reader.readLine()) != null) {
                 String[] fields = line.split(";");
                 if (fields.length == 14) {
-                    //availabilityList.get(ThreadLocalRandom.current().nextInt(availabilityList.size()))
-                    inventory.put(fields[0], true);
+                    inventory.put(fields[0], availabilityList.get(ThreadLocalRandom.current().nextInt(availabilityList.size())));
                 }
             }
             System.out.println("ADDED INVENTORY, COUNT: " + inventory.size());
@@ -38,15 +37,14 @@ public class InventoryController {
 
     @GetMapping("/{uniq_id}")
     public Boolean getAvailability(@PathVariable String uniq_id) {
-        return true;
-        //return inventory.getOrDefault(uniq_id, false);
+        return inventory.getOrDefault(uniq_id, false);
     }
 
     @PostMapping("/availability")
     public Map<String, Boolean> getAvailabilities(@RequestBody List<String> uniq_ids) {
         Map<String, Boolean> availabilityMap = new ConcurrentHashMap<>();
         for (String uniq_id : uniq_ids) {
-            availabilityMap.put(uniq_id, inventory.getOrDefault(uniq_id, true));
+            availabilityMap.put(uniq_id, inventory.getOrDefault(uniq_id, false));
         }
         return availabilityMap;
     }
