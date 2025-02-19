@@ -7,6 +7,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -76,11 +77,18 @@ public class ProductController {
 
     public Product fallbackGetProductById(String uniqId, Throwable throwable) {
         logger.error("Circuit Breaker triggered for getAvailableProductById. Reason: {}", throwable.getMessage());
-        return new Product(uniqId, "N/A", "Unavailable", "This product is temporarily unavailable", "0", "0", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A");
+        throw new CustomServiceUnavailableException("Service is temporarily unavailable. Please try again later.");
     }
 
     public List<Product> fallbackGetProductsBySku(String sku, Throwable throwable) {
         logger.error("Circuit Breaker triggered for getAvailableProductsBySku. Reason: {}", throwable.getMessage());
-        return List.of();
+        throw new CustomServiceUnavailableException("Service is temporarily unavailable. Please try again later.");
+    }
+
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public static class CustomServiceUnavailableException extends RuntimeException {
+        public CustomServiceUnavailableException(String message) {
+            super(message);
+        }
     }
 }
